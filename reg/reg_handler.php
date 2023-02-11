@@ -7,32 +7,39 @@ if(isset($_SERVER['HTTP_X_REQUESTED_WITH']) && !empty($_SERVER['HTTP_X_REQUESTED
         return hash('md5', $salt . $pass, false);
     } 
     function Registration($data) {
-        if ($_POST["pass"]!= $_POST["conf_pass"]) {
+            if ($_POST["pass"]!= $_POST["conf_pass"]) {
                 echo json_encode(array('success'=> 0, 'message'=> 'Пароли не совпадают.', 'field'=>'conf_pass'));
                 exit;
             }
-            if (!preg_match('/\w+@\w+\.\w+/', $_POST['email'])) {
+            else if (!preg_match('/\w+@\w+\.\w+/', $_POST['email'])) {
                 echo json_encode(array('success'=> 0, 'message'=> 'Неккоректный емайл', 'field'=>'email'));
                 exit;
             }
-            if (!preg_match('/^(?=.*\d)[a-zA-Z\d]{6,}$/', $_POST['pass'])) {
+            else if (!preg_match('/^(?=.*\d)(?=.*[a-z])[a-z0-9]+$/i', $_POST['pass'])) {
                 echo json_encode(array('success'=> 0, 'message'=> 'Неккоректный пароль', 'field'=>'pass'));
                 exit;
             }
-            include "../Json.php";
-            $dataArray = json::getFromJson('../users.json');
-            foreach ($dataArray as $obj) {   
-                if($obj["login"]==$data->login){                
-                    echo json_encode(array('success'=> 0, 'message' => "Пользователь с таким логином есть",'field'=>'login'), JSON_UNESCAPED_UNICODE);
-                    exit;
-                }else if ($obj["email"]==$data->email) {
-                    echo json_encode(array('success'=> 0, 'message' => "Пользователь с таким емаилом есть",'field'=>'email'), JSON_UNESCAPED_UNICODE);
-                    exit;
-                }
+            else if (preg_match("|\s|", $_POST['login'])){
+                echo json_encode(array('success'=> 0, 'message'=> 'Логин содержит пробелы', 'field'=>'login'));
+                exit;
             }
-            $_SESSION['user'] = $obj["name"];
-            Json::addToJson($data, '../users.json');
-            echo json_encode(array('success'=> 1, 'message' => "успешная ркгистрация"), JSON_UNESCAPED_UNICODE);
+            else{
+                include "../Json.php";
+                $dataArray = json::getFromJson('../users.json');
+                foreach ($dataArray as $obj) {   
+                    if($obj["login"]==$data->login){                
+                        echo json_encode(array('success'=> 0, 'message' => "Пользователь с таким логином есть",'field'=>'login'), JSON_UNESCAPED_UNICODE);
+                        exit;
+                    }else if ($obj["email"]==$data->email) {
+                        echo json_encode(array('success'=> 0, 'message' => "Пользователь с таким емаилом есть",'field'=>'email'), JSON_UNESCAPED_UNICODE);
+                        exit;
+                    }
+                }
+                $_SESSION['user'] = $obj["name"];
+                Json::addToJson($data, '../users.json');
+                echo json_encode(array('success'=> 1, 'message' => "успешная регистрация"), JSON_UNESCAPED_UNICODE);
+            }
+            
         }
         if(isset($_POST["login"])&&isset($_POST["pass"])&&isset($_POST["conf_pass"])&&isset($_POST["email"])&&isset($_POST["name"])) {
             include "../User.php";
