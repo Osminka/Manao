@@ -23,7 +23,7 @@ if(isset($_SERVER['HTTP_X_REQUESTED_WITH']) && !empty($_SERVER['HTTP_X_REQUESTED
         if(isset($_POST["login"])&&isset($_POST["pass"])) {
             include "../User.php";
             $salt = '$2a$07$R.gJb2U2N.FmZ4hPp1y2CN$';
-            $user = new User($_POST['login'], passwordHash($_POST['password']), $_POST['email'], $_POST['name']);
+            $user = new User($_POST['login'], passwordHash($_POST['pass']), $_POST['email'], $_POST['name']);
             Authorization($user);
         }
         else{
